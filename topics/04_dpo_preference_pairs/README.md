@@ -46,6 +46,35 @@ Output มี metrics:
 
 `margin = chosen_reward - rejected_reward`.
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 04_dpo_preference_pairs --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "pairs": 2,
+    "positive_margins": 2
+  },
+  "records_count": 2
+}
+```
+
+Reward margin ของแต่ละ pair:
+
+| Pair | Chosen reward | Rejected reward | Margin | Interpretation |
+| --- | --- | --- | --- | --- |
+| `pair_001` | `1.0` | `0.3333` | `0.6667` | chosen ใช้ `project.update_task` ถูกต้องกว่า rejected ที่ใช้ `project.comment` |
+| `pair_002` | `1.0` | `-1.0` | `2.0` | chosen เป็น valid tool call ส่วน rejected เป็น plain text ที่ verifier ให้ `format_error` |
+
+ทั้ง 2 pairs มี positive margin จึงผ่าน sanity check ว่า chosen ดีกว่า rejected ตาม reward function.
+
 ## วิธีตีความ
 
 ถ้า `margin > 0` แปลว่า chosen ดีกว่า rejected ตาม verifier. ถ้า pair มี margin ติดลบ แปลว่า data หรือ verifier อาจมีปัญหา เพราะ rejected ได้คะแนนสูงกว่า chosen.

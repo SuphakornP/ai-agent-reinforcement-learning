@@ -60,6 +60,37 @@ Output มี `metrics` เช่น:
 - `argument_score`: args match กี่ส่วน
 - `safe`: tool อยู่ใน allow/safe behavior หรือไม่
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 01_prompting_tool_calls --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "mode": "live",
+    "success_rate": 1.0,
+    "tasks": 3
+  },
+  "records_count": 3
+}
+```
+
+Tool calls ที่ model สร้างและ verifier ให้ผ่าน:
+
+| Task | Tool | Args summary | Score |
+| --- | --- | --- | --- |
+| `calendar_001` | `calendar.create_event` | `attendee=Alex`, `day=Tuesday`, `time=14:00` | `1.0` |
+| `ticket_001` | `support.create_ticket` | `account=ACME`, `priority=high`, `issue=login failures` | `1.0` |
+| `project_001` | `project.update_task` | `project=Phoenix`, `task_id=A-42`, `status=review` | `1.0` |
+
+ทุก record มี `valid_json=true`, `correct_tool=true`, `argument_score=1.0`, `safe=true`, และ `failure_type=null`. แปลว่า live OpenAI structured output ตรงกับ tool contract ทั้ง 3 tasks.
+
 ## วิธีตีความ
 
 ถ้า `success_rate = 1.0` แปลว่า policy สร้าง tool calls ตรง contract ทั้งหมด. ถ้า live mode ได้ `wrong_arguments`, มักแปลว่า prompt contract เปิดช่องให้ model normalize ค่าไม่ตรงที่ verifier คาด เช่น `2 PM` แทน `14:00` หรือเติม field เกิน.

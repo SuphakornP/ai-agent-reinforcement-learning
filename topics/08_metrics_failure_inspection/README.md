@@ -47,6 +47,41 @@ Output มี metrics:
 
 แต่ละ record มี case-level reward result และ latency.
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 08_metrics_failure_inspection --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "avg_latency_ms": 826.67,
+    "failure_buckets": {
+      "format_error": 1,
+      "success": 1,
+      "wrong_tool": 1
+    },
+    "success_rate": 0.3333
+  },
+  "records_count": 3
+}
+```
+
+ผลราย eval case:
+
+| Case | Latency ms | Score | Failure type | valid_json | correct_tool |
+| --- | --- | --- | --- | --- | --- |
+| `eval_001` | `830` | `1.0` | `null` | `true` | `true` |
+| `eval_002` | `910` | `0.3333` | `wrong_tool` | `true` | `false` |
+| `eval_003` | `740` | `-1.0` | `format_error` | `false` | `false` |
+
+ผลนี้แสดงว่า aggregate metric อย่าง `success_rate` ต้องอ่านคู่กับ failure buckets เพราะ failures แต่ละแบบนำไปสู่ fix คนละประเภท.
+
 ## วิธีตีความ
 
 `success_rate = 0.3333` แปลว่าผ่าน 1 จาก 3 cases. แต่ failure buckets บอกมากกว่านั้น:

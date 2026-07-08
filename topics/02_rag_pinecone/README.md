@@ -67,6 +67,40 @@ Output มี metrics:
 - `text`
 - `metadata`
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 02_rag_pinecone --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "mode": "live",
+    "pinecone_embed_model": "multilingual-e5-large",
+    "queries": 3,
+    "records": 4
+  },
+  "records_count": 3
+}
+```
+
+Top match ของแต่ละ query จาก Pinecone integrated inference:
+
+| Query id | Query language | Top match | Topic | Score |
+| --- | --- | --- | --- | --- |
+| `q-th-refund` | Thai | `doc-th-001` | `refund policy` | `0.8855` |
+| `q-en-reward` | English | `doc-en-001` | `reward design` | `0.8393` |
+| `q-th-safety` | Thai | `doc-th-002` | `safety escalation` | `0.8825` |
+
+ตัวอย่างผลที่สำคัญคือ query ภาษาไทย `ลูกค้าในกรุงเทพต้องใช้อะไรในการขอคืนเงิน` retrieve เอกสารภาษาไทย `doc-th-001` ที่พูดถึงใบเสร็จ, เลขคำสั่งซื้อ, และกรอบเวลา 30 วันได้เป็นอันดับหนึ่ง.
+
+คะแนน similarity อาจเปลี่ยนเล็กน้อยในแต่ละ run ตาม Pinecone service/runtime แต่ expected behavior คือทุก query ต้องมี match และ top match ควรตรง topic.
+
 ## วิธีตีความ
 
 ถ้า query ภาษาไทยเรื่อง refund ได้ document Thai refund policy เป็น match แปลว่า multilingual retrieval path ทำงานตามที่ต้องการ. ถ้า live mode ไม่มี matches, ให้ดู Pinecone index, namespace, field map, และข้อมูลที่ upsert.

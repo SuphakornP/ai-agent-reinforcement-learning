@@ -53,6 +53,39 @@ uv run python topics/00_decision_matrix/demo.py
 - `verifiable` -> `RLVR with verifier rewards`
 - `long_horizon` -> `Environment-based RL`
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 00_decision_matrix --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "cases": 6,
+    "mode": "live"
+  },
+  "records_count": 6
+}
+```
+
+รายการ recommendation ที่ได้จริง:
+
+| Case | Recommended technique |
+| --- | --- |
+| `facts` | `RAG or data injection` |
+| `format` | `Prompting, then SFT` |
+| `examples` | `SFT` |
+| `preferences` | `DPO` |
+| `verifiable` | `RLVR with verifier rewards` |
+| `long_horizon` | `Environment-based RL` |
+
+ผลลัพธ์นี้ยืนยันว่า decision matrix map failure signal ทั้ง 6 แบบไปยังเทคนิคที่เหมาะสมครบทุก case.
+
 ## วิธีตีความ
 
 ถ้า output แนะนำ RAG แปลว่าปัญหาไม่ได้อยู่ที่ model reasoning แต่อยู่ที่ model ไม่มีข้อมูล. ถ้า output แนะนำ RLVR แปลว่าเรามี verifier ที่ตรวจ correctness ได้แล้ว จึงสามารถเปลี่ยน eval เป็น reward signal ได้.

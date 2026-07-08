@@ -50,6 +50,36 @@ Output มี metrics:
 - `retrieval_failure` -> `RAG index or chunk metadata fix`
 - `unsafe_action` -> `Safety policy and environment guardrail`
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 09_continuous_improvement_loop --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "failures": 3,
+    "new_evals": 3
+  },
+  "records_count": 3
+}
+```
+
+Production failures ถูก promote เป็น regression evals ดังนี้:
+
+| Failure id | Failure type | New eval id | Lightest fix |
+| --- | --- | --- | --- |
+| `prod_001` | `wrong_tool` | `eval_prod_001` | `Verifier-backed RLVR eval` |
+| `prod_002` | `retrieval_failure` | `eval_prod_002` | `RAG index or chunk metadata fix` |
+| `prod_003` | `unsafe_action` | `eval_prod_003` | `Safety policy and environment guardrail` |
+
+ผลลัพธ์นี้แสดงว่า failure ทุกตัวถูกแปลงเป็น eval id ได้ครบ ทำให้ทีมสามารถเพิ่ม regression cases กลับเข้า harness ได้ทันที.
+
 ## วิธีตีความ
 
 ถ้า production failure ถูกแปลงเป็น `new_eval_id` ครบ แปลว่า harness มีทางเก็บ regression case แล้ว. ขั้นตอนถัดไปในระบบจริงคือเพิ่ม eval row เข้า dataset, rerun harness, แล้วแก้ prompt/RAG/verifier/policy ตาม `lightest_fix`.

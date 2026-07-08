@@ -55,6 +55,39 @@ Output มี metrics:
 
 Harness จะตรวจว่า rollout rows ทุกแถวมี `advantage`.
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 07_grpo_rollout_simulation --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "best_reward": 1.0,
+    "rollouts": 10,
+    "tasks": 2
+  },
+  "records_count": 10
+}
+```
+
+แต่ละ task สร้าง 5 candidates และได้ pattern เดียวกัน:
+
+| Candidate | Reward | Advantage | Failure type |
+| --- | --- | --- | --- |
+| `0` | `1.0` | `0.96` | `null` |
+| `1` | `0.6` | `0.56` | `wrong_tool` |
+| `2` | `0.6` | `0.56` | `wrong_arguments` |
+| `3` | `-1.0` | `-1.04` | `unsafe_action` |
+| `4` | `-1.0` | `-1.04` | `format_error` |
+
+ผลลัพธ์นี้เกิดกับทั้ง `rollout_001` และ `rollout_002`, รวมเป็น 10 rollout rows. ค่า advantage เป็นบวกสำหรับ candidate ที่ดีกว่าค่าเฉลี่ยกลุ่ม และเป็นลบสำหรับ unsafe/malformed candidates.
+
 ## วิธีตีความ
 
 Candidate ที่ reward สูงกว่าค่าเฉลี่ยจะมี advantage เป็นบวก. Candidate ที่ malformed หรือ unsafe จะมี advantage เป็นลบ. ใน RL จริง signal นี้ช่วยบอกว่าการตอบแบบไหนควรถูก reinforce มากกว่า.

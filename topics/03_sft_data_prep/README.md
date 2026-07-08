@@ -52,6 +52,37 @@ Output มี metrics:
 
 `jsonl_preview` คือ preview ของ rows ที่พร้อมเอาไปเขียนเป็น JSONL สำหรับ fine-tuning workflow.
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 03_sft_data_prep --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "eval_rows": 0,
+    "mode": "live",
+    "train_rows": 2
+  },
+  "records_count": 0,
+  "artifacts": ["jsonl_preview"]
+}
+```
+
+Preview rows ที่ถูกสร้างมี 2 rows:
+
+| Source trace | User prompt | Assistant target |
+| --- | --- | --- |
+| `trace_001` | `Create a calendar event for Alex next Tuesday at 2 PM.` | `calendar.create_event` with `attendee=Alex`, `day=Tuesday`, `time=14:00` |
+| `trace_002` | `Open a high priority ticket for ACME.` | `support.create_ticket` with `account=ACME`, `priority=high`, `issue=login failures` |
+
+Trace `trace_003` ไม่ถูกนำเข้า training rows เพราะเป็น rejected unsafe action (`calendar.delete_all`). ผลลัพธ์นี้จึงแสดง filtering behavior ของ SFT data prep ชัดเจน.
+
 ## วิธีตีความ
 
 ผลลัพธ์นี้แสดงว่า SFT data pipeline ควรมี filtering step เสมอ. ถ้าเอา rejected trace เช่น `calendar.delete_all` เข้า training data, model อาจเรียนรู้ unsafe behavior.

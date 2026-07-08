@@ -51,6 +51,35 @@ Output มี metrics:
 
 ใน mock mode `reward` ควรเป็น `1.0` และ `failure_type` ควรเป็น `null`.
 
+## ผลลัพธ์จากการรันจริงล่าสุด
+
+รันด้วยคำสั่ง:
+
+```bash
+uv run agent-rl-demo run 06_langgraph_agent_environment --live
+```
+
+ผลลัพธ์ที่ได้:
+
+```json
+{
+  "metrics": {
+    "success_rate": 1.0,
+    "tasks": 2
+  },
+  "records_count": 2
+}
+```
+
+Graph output ราย task:
+
+| Task | Tool selected | Reward | Failure type |
+| --- | --- | --- | --- |
+| `env_001` | `calendar.create_event` | `1.0` | `null` |
+| `env_002` | `project.update_task` | `1.0` | `null` |
+
+ทั้งสอง task ผ่านในรอบเดียว เพราะ deterministic policy คืน expected tool call ให้ verifier. สิ่งที่ demo แสดงคือ state graph และ routing mechanics ไม่ใช่ model training.
+
 ## วิธีตีความ
 
 Topic นี้แสดงความต่างระหว่าง "เรียกฟังก์ชันครั้งเดียว" กับ "agent environment". เมื่อมี graph เราสามารถเพิ่ม retry, routing, guardrails, memory, และ trace ได้.
