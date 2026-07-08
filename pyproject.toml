@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "CLI demos for NVIDIA-style agentic RL concepts using LangGraph, LangChain, OpenAI, Pinecone, and LangSmith."
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
 dependencies = [
     "langchain>=0.3.0",
     "langchain-openai>=0.2.0",

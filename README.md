@@ -662,3 +662,7 @@ uv run agent-rl-demo harness run all --live --no-report
 
 - [docs/harness-engineering.md](docs/harness-engineering.md) อธิบาย harness engineering, research summary, และ checklist
 - [AGENTS.md](AGENTS.md) กติกาสำหรับ coding agents ที่จะทำงานต่อใน repo นี้
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
