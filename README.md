@@ -296,6 +296,177 @@ uv run pytest -m live
 
 รายละเอียดเชิงลึกอยู่ใน `topics/*/README.md`.
 
+## Applying These Techniques To Real Agentic Workflows
+
+เทคนิคแต่ละอย่างไม่ได้ใช้แทนกันตรง ๆ. วิธีเลือกที่ practical ที่สุดคือเริ่มจาก failure mode:
+
+```text
+ถ้า agent ไม่รู้ข้อมูล -> RAG
+ถ้า agent format/tool-call ไม่นิ่ง -> Prompting / SFT
+ถ้าคำตอบถูกหลายแบบแต่คนชอบแบบหนึ่ง -> DPO
+ถ้าความถูกต้องตรวจได้ด้วย rule/test/tool execution -> RLVR
+ถ้างานหลายขั้นตอน มี state, retry, guardrail -> LangGraph / environment
+ถ้าต้องเทียบหลาย rollout เพื่อเลือก behavior ที่ดีขึ้น -> GRPO-style / rollout scoring
+ถ้าระบบเริ่มใช้งานจริง -> metrics, failure buckets, continuous improvement
+```
+
+### Prompting + Tool Calls
+
+ใช้เมื่ออยากให้ agent ทำงานเป็นขั้นตอนและเรียก tool ให้ถูก เช่น สร้าง ticket, update CRM, schedule meeting, query database, หรือ call internal API.
+
+Use cases จริง:
+
+- Customer support agent เลือก `support.create_ticket` พร้อม `account`, `priority`, `issue`
+- Sales ops agent update deal stage ใน CRM
+- HR agent สร้าง onboarding checklist
+- Finance agent เรียก tool ตรวจ invoice status
+
+เหมาะเมื่อ task ไม่ซับซ้อนมาก, schema ชัด, และแก้ด้วย prompt/tool schema ได้. ไม่เหมาะเมื่อ agent ไม่มีข้อมูลที่ต้องใช้, ต้องเรียนรู้ behavior ซ้ำจำนวนมาก, หรือ correctness ต้องตรวจจาก execution หลายขั้นตอน.
+
+### RAG
+
+ใช้เมื่อปัญหาคือ model ไม่มีข้อมูล หรือข้อมูลเปลี่ยนบ่อย เช่น policy, SOP, pricing, product docs, contract clauses, internal handbook.
+
+Use cases จริง:
+
+- Support agent ตอบ policy การคืนเงินจาก knowledge base
+- Legal assistant ค้น clause จาก contract repository
+- HR agent ตอบเรื่อง benefits จาก employee handbook
+- Technical support agent ดึง docs ตาม product version
+- Thai/English bilingual support ใช้ multilingual retrieval เช่น Pinecone `multilingual-e5-large`
+
+เหมาะเมื่อข้อมูลอยู่ในเอกสาร, ต้อง cite source ได้, และข้อมูลเปลี่ยนบ่อยจนไม่ควรฝังใน model weights. ไม่เหมาะเมื่อ document quality แย่, query ต้องใช้ computation มากกว่าการค้นหา, หรือไม่มี metadata/chunking ที่ดี.
+
+### SFT
+
+ใช้เมื่อมีตัวอย่างคำตอบที่ถูกต้องหรือ trace ที่ approved แล้วจำนวนพอสมควร และอยากให้ model ทำตาม pattern นั้นเสถียรขึ้น.
+
+Use cases จริง:
+
+- สอน agent ให้ตอบ customer support ตาม tone บริษัท
+- สอน format JSON tool call ที่องค์กรใช้ซ้ำ
+- สอน analyst note format
+- สอน agent ให้ summarize call transcript เป็น template เดียวกัน
+- สอน invoice processing agent ให้ extract fields เป็น schema เดิมทุกครั้ง
+
+เหมาะเมื่อมี accepted traces, behavior เป็น pattern ซ้ำ, และ prompt อย่างเดียวเริ่มเปราะ. ไม่เหมาะเมื่อข้อมูล factual เปลี่ยนบ่อย, ไม่มี dataset คุณภาพ, หรือโจทย์เป็น preference มากกว่า format.
+
+### DPO
+
+ใช้เมื่อมีคำตอบถูกหลายแบบ แต่ reviewer ชอบแบบหนึ่งมากกว่า เช่น สุภาพกว่า, กระชับกว่า, action-oriented กว่า, หรือ risk-aware กว่า.
+
+Use cases จริง:
+
+- Customer support response: chosen ตอบชัดและสุภาพ, rejected ยาวหรืออ้อม
+- Sales email agent: chosen เขียนแบบ consultative, rejected aggressive
+- Executive summary agent: chosen สรุปเป็น decision memo, rejected เป็น raw bullet dump
+- Coding assistant: chosen แก้ root cause, rejected แค่ patch เฉพาะหน้า
+
+เหมาะเมื่อ correctness ตรวจด้วย rule ยาก, มี reviewer preference, และต้องปรับ style/judgment/ranking. ไม่เหมาะเมื่อมีคำตอบถูกผิดชัดเจนและตรวจด้วย verifier ได้ เพราะกรณีนั้น RLVR มักตรงกว่า.
+
+### RLVR
+
+ใช้เมื่อความถูกต้องตรวจได้จริงด้วย rule, test, schema, simulation, API response, database state, หรือ execution result.
+
+Use cases จริง:
+
+- Coding agent: run unit tests แล้ว reward จาก pass/fail
+- SQL agent: query ต้อง execute ได้และ result ตรง expectation
+- Finance/AP agent: invoice total ต้อง match line items และ vendor id ต้อง valid
+- Booking agent: reservation API ต้อง return confirmed status
+- Support agent: tool call ต้องไม่เป็น destructive action และต้องสร้าง ticket ถูก account
+- Data agent: generated chart ต้องใช้ columns ที่มีจริง
+
+เหมาะเมื่อมี verifier ชัด, มี safety rules, มี execution environment, และต้องลด hallucinated action. ไม่เหมาะเมื่อ quality เป็น subjective ล้วน, verifier อ่อนหรือ game ได้ง่าย, หรือไม่มีทางตรวจ action จริง.
+
+### LangGraph / Agent Environment
+
+ใช้เมื่อ workflow มีหลาย node, state, retry, branching, human approval, หรือหลาย tools.
+
+Use cases จริง:
+
+- Refund agent: `retrieve policy -> inspect order -> check eligibility -> draft decision -> human approval if high value`
+- AP invoice agent: `extract invoice -> match PO -> verify totals -> route exception -> post to ERP`
+- Research agent: `plan -> search -> read -> synthesize -> cite -> self-check`
+- Incident response agent: `classify alert -> collect logs -> propose action -> require approval -> execute`
+
+เหมาะเมื่องานยาวกว่า 1 step, ต้องมี state, ต้อง retry เมื่อ verifier fail, หรือต้องมี guardrails/human-in-the-loop. ไม่เหมาะเมื่องานเป็น single prompt/simple response และ graph complexity มากกว่าปัญหาจริง.
+
+### GRPO-Style Rollouts
+
+ใช้เพื่อเปรียบเทียบหลาย candidate/action ต่อ task เดียวกัน แล้วให้ reward/advantage เพื่อดูว่า behavior ไหนควรถูก reinforce.
+
+Use cases จริง:
+
+- ให้ coding agent เสนอ fix 5 แบบ แล้ว test/verifier เลือกแบบดีที่สุด
+- ให้ support agent generate 3 response strategies แล้วเลือกอันที่ policy-compliant
+- ให้ workflow planner สร้างหลาย plan แล้วให้ verifier ตรวจ cost/risk/success
+- ให้ SQL agent generate หลาย query แล้วเลือก query ที่ execute และ match expected result
+
+เหมาะเมื่อมีหลายทางเลือก, verifier ให้คะแนนได้, และอยาก optimize policy จาก comparison ภายในกลุ่ม. ไม่เหมาะเมื่อ cost ต่อ rollout แพงเกิน, verifier ยังไม่น่าเชื่อถือ, หรือ task ไม่ต้อง sample หลายทาง.
+
+### Metrics + Failure Buckets
+
+ใช้ในระบบจริงทุกระบบ เพราะ pass/fail อย่างเดียวไม่พอ. ต้องรู้ว่า fail เพราะอะไร.
+
+Failure buckets ที่พบบ่อย:
+
+- `format_error`: output parse ไม่ได้
+- `wrong_tool`: เรียก tool ผิด
+- `wrong_arguments`: args ผิด
+- `retrieval_failure`: ดึงเอกสารผิด
+- `unsafe_action`: พยายามทำ action เสี่ยง
+- `latency_regression`: ช้ากว่า threshold
+- `looping`: agent retry วน
+
+ใช้กับ monitoring dashboard, regression suite, release gate, LangSmith trace review, และ weekly eval review.
+
+### Continuous Improvement Loop
+
+ใช้หลัง deploy แล้ว เพื่อเปลี่ยน production failure เป็น eval case ใหม่.
+
+ตัวอย่าง retrieval failure:
+
+```text
+ลูกค้าถาม refund ภาษาไทย -> agent retrieve doc ผิด
+-> bucket = retrieval_failure
+-> เพิ่ม eval case q-th-refund
+-> ปรับ chunk metadata / namespace / query rewrite
+-> rerun harness
+```
+
+ตัวอย่าง unsafe action:
+
+```text
+agent เรียก delete tool โดยไม่ขอ approval
+-> bucket = unsafe_action
+-> เพิ่ม regression eval
+-> เพิ่ม guardrail / tool permission / verifier
+-> rerun harness
+```
+
+นี่คือสิ่งที่ทำให้ agent ดีขึ้นอย่างเป็นระบบ ไม่ใช่แก้ prompt ไปเรื่อย ๆ แบบเดา.
+
+### Harness Engineering
+
+Harness engineering คือระบบรอบโมเดลทั้งหมด ไม่ใช่แค่ prompt:
+
+- prompt contract
+- tool schema
+- state graph
+- memory
+- retrieval
+- verifier
+- reward
+- eval data
+- tracing
+- safety guardrails
+- CI checks
+
+ก่อน deploy agent ใหม่ ควรผ่าน harness เช่น `run eval -> check tool safety -> check RAG matches -> check success rate -> inspect failures`. หลัง deploy ทุก production failure ควรถูก promote เป็น regression test และทุก prompt/schema change ควร rerun harness.
+
+สรุปสั้น ๆ: ถ้าทำ agentic workflow จริง ให้เริ่มจาก harness + eval ก่อน แล้วค่อยเลือก technique ที่ตรง failure mode ที่สุด. อย่าเริ่มจาก fine-tune หรือ RL ทันที เพราะหลายปัญหาแก้ได้ด้วย RAG, schema, verifier, หรือ workflow graph ที่ดีขึ้นก่อน.
+
 ## Harness Runtime
 
 คำสั่ง `run` แสดงผล demo. คำสั่ง `harness run` ตรวจว่า demo output มีคุณภาพพอหรือไม่.
