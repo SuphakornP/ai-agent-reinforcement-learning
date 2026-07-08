@@ -1,4 +1,4 @@
-# NVIDIA Agentic RL Demo + Harness Engineering
+# 🤖 NVIDIA Agentic RL Demo + Harness Engineering
 
 โปรเจกต์นี้เป็นชุด demo แบบ Python CLI สำหรับอธิบายแนวคิดจากบทความ NVIDIA
 ["Mastering Agentic Techniques: AI Agent Reinforcement Learning"](https://developer.nvidia.com/blog/mastering-agentic-techniques-ai-agent-reinforcement-learning/)
@@ -15,7 +15,7 @@
 
 Repo นี้จึงเป็นทั้ง demo ของ agentic RL และตัวอย่าง harness engineering สำหรับ agent workflow.
 
-## Quick Start
+## ⚡ Quick Start
 
 ติดตั้ง dependency:
 
@@ -54,7 +54,7 @@ uv run agent-rl-demo run all --live
 uv run agent-rl-demo harness run all --live
 ```
 
-## What This Repo Demonstrates
+## 🧭 What This Repo Demonstrates
 
 บทความ NVIDIA อธิบายว่า agentic RL ไม่ได้เริ่มจากการ train model ทันที. ขั้นตอนที่ควรทำก่อนคือวิเคราะห์ว่า agent ล้มเหลวแบบไหน และเรามี signal อะไรในการวัดผล.
 
@@ -73,12 +73,47 @@ Repo นี้แตกแนวคิดนั้นเป็น 10 topics:
 | `08_metrics_failure_inspection` | จะรู้ได้อย่างไรว่า agent ดีขึ้น | รวม success rate, latency, failure buckets |
 | `09_continuous_improvement_loop` | production failures กลับมาเป็น eval อย่างไร | แปลง failures เป็น regression evals และ next fixes |
 
-## Mental Model
+### 🗺️ Technique Selection Flow
+
+Mermaid chart นี้สรุป logic หลักของ repo: เริ่มจาก failure mode ก่อน แล้วค่อยเลือก technique ที่เบาที่สุด.
+
+```mermaid
+flowchart TD
+    failure["Observed agent failure"] --> facts{"Missing domain facts?"}
+    facts -- "Yes" --> rag["RAG / data injection"]
+    facts -- "No" --> format{"Format or tool-call drift?"}
+    format -- "Yes" --> prompt["Prompting -> SFT if repeated"]
+    format -- "No" --> demos{"Approved demonstrations exist?"}
+    demos -- "Yes" --> sft["SFT"]
+    demos -- "No" --> preference{"Valid answers, but reviewer preference?"}
+    preference -- "Yes" --> dpo["DPO"]
+    preference -- "No" --> verifiable{"Can correctness be verified?"}
+    verifiable -- "Yes" --> rlvr["RLVR with verifier rewards"]
+    verifiable -- "No" --> longhorizon{"Multi-step stateful workflow?"}
+    longhorizon -- "Yes" --> envrl["LangGraph / environment-based RL"]
+    longhorizon -- "No" --> metrics["Add metrics, traces, and failure buckets first"]
+```
+
+## 🧠 Mental Model
 
 คิดแบบนี้จะอ่าน repo ง่าย:
 
 ```text
 task -> policy/model -> action/tool call -> environment/verifier -> reward -> metrics -> next improvement
+```
+
+### 🔁 Agentic RL Loop
+
+```mermaid
+flowchart LR
+    task["Task / eval case"] --> policy["Policy / model"]
+    policy --> action["Action / tool call"]
+    action --> environment["Environment / tool runtime"]
+    environment --> verifier["Verifier"]
+    verifier --> reward["Reward + failure bucket"]
+    reward --> metrics["Metrics + trace"]
+    metrics --> improve["Next improvement"]
+    improve -.-> task
 ```
 
 ใน repo นี้:
@@ -92,7 +127,7 @@ task -> policy/model -> action/tool call -> environment/verifier -> reward -> me
 
 ถ้า verifier ผิด, RL จะ optimize signal ผิด. เพราะฉะนั้น repo นี้ตั้งใจให้เห็นว่า "ตรวจให้ถูกก่อน train" สำคัญแค่ไหน.
 
-## Glossary / คำศัพท์
+## 📚 Glossary / คำศัพท์
 
 **Agent** คือระบบที่ให้โมเดลตัดสินใจมากกว่าการตอบข้อความอย่างเดียว เช่น เลือก tool, ส่ง arguments, อ่านผลลัพธ์, และทำขั้นตอนต่อไป.
 
@@ -148,7 +183,7 @@ task -> policy/model -> action/tool call -> environment/verifier -> reward -> me
 
 **Live mode** คือโหมดที่เรียก OpenAI/Pinecone/LangSmith จริงตาม `.env`.
 
-## Project Structure
+## 🧱 Project Structure
 
 ```text
 .
@@ -177,7 +212,7 @@ task -> policy/model -> action/tool call -> environment/verifier -> reward -> me
 └── uv.lock
 ```
 
-## Configuration
+## 🔐 Configuration
 
 Mock mode does not require keys.
 
@@ -207,7 +242,7 @@ Important notes:
 - `PINECONE_INDEX_NAME=ap-thailand-kb-qa` ถูกใช้เพราะมี integrated index อยู่แล้ว และ Pinecone project นี้เคยเต็ม quota 20/20 serverless indexes.
 - ถ้าไม่มี `LANGSMITH_API_KEY`, mock/test path จะยังรันได้.
 
-## Commands
+## 🧪 Commands
 
 List topics:
 
@@ -253,7 +288,7 @@ uv run pytest
 uv run pytest -m live
 ```
 
-## How To Read Demo Output
+## 📤 How To Read Demo Output
 
 ทุก `agent-rl-demo run ...` command คืน JSON ที่มี shape เดียวกัน:
 
@@ -279,7 +314,7 @@ uv run pytest -m live
 
 ถ้าเห็น `success_rate: 1.0` แปลว่า case ทั้งหมดผ่าน verifier. ถ้าเห็น `failure_type` แปลว่า verifier จัดหมวด failure ได้แล้ว และสามารถเอาไปสร้าง regression eval ต่อได้.
 
-## Topic Outputs At A Glance
+## 🧩 Topic Outputs At A Glance
 
 | Topic | Command | ผลลัพธ์หลัก |
 | --- | --- | --- |
@@ -296,7 +331,7 @@ uv run pytest -m live
 
 รายละเอียดเชิงลึกอยู่ใน `topics/*/README.md`.
 
-## Applying These Techniques To Real Agentic Workflows
+## 🛠️ Applying These Techniques To Real Agentic Workflows
 
 เทคนิคแต่ละอย่างไม่ได้ใช้แทนกันตรง ๆ. วิธีเลือกที่ practical ที่สุดคือเริ่มจาก failure mode:
 
@@ -310,7 +345,7 @@ uv run pytest -m live
 ถ้าระบบเริ่มใช้งานจริง -> metrics, failure buckets, continuous improvement
 ```
 
-### Prompting + Tool Calls
+### 🧰 Prompting + Tool Calls
 
 ใช้เมื่ออยากให้ agent ทำงานเป็นขั้นตอนและเรียก tool ให้ถูก เช่น สร้าง ticket, update CRM, schedule meeting, query database, หรือ call internal API.
 
@@ -323,7 +358,7 @@ Use cases จริง:
 
 เหมาะเมื่อ task ไม่ซับซ้อนมาก, schema ชัด, และแก้ด้วย prompt/tool schema ได้. ไม่เหมาะเมื่อ agent ไม่มีข้อมูลที่ต้องใช้, ต้องเรียนรู้ behavior ซ้ำจำนวนมาก, หรือ correctness ต้องตรวจจาก execution หลายขั้นตอน.
 
-### RAG
+### 🔎 RAG
 
 ใช้เมื่อปัญหาคือ model ไม่มีข้อมูล หรือข้อมูลเปลี่ยนบ่อย เช่น policy, SOP, pricing, product docs, contract clauses, internal handbook.
 
@@ -337,7 +372,7 @@ Use cases จริง:
 
 เหมาะเมื่อข้อมูลอยู่ในเอกสาร, ต้อง cite source ได้, และข้อมูลเปลี่ยนบ่อยจนไม่ควรฝังใน model weights. ไม่เหมาะเมื่อ document quality แย่, query ต้องใช้ computation มากกว่าการค้นหา, หรือไม่มี metadata/chunking ที่ดี.
 
-### SFT
+### 📘 SFT
 
 ใช้เมื่อมีตัวอย่างคำตอบที่ถูกต้องหรือ trace ที่ approved แล้วจำนวนพอสมควร และอยากให้ model ทำตาม pattern นั้นเสถียรขึ้น.
 
@@ -351,7 +386,7 @@ Use cases จริง:
 
 เหมาะเมื่อมี accepted traces, behavior เป็น pattern ซ้ำ, และ prompt อย่างเดียวเริ่มเปราะ. ไม่เหมาะเมื่อข้อมูล factual เปลี่ยนบ่อย, ไม่มี dataset คุณภาพ, หรือโจทย์เป็น preference มากกว่า format.
 
-### DPO
+### ⚖️ DPO
 
 ใช้เมื่อมีคำตอบถูกหลายแบบ แต่ reviewer ชอบแบบหนึ่งมากกว่า เช่น สุภาพกว่า, กระชับกว่า, action-oriented กว่า, หรือ risk-aware กว่า.
 
@@ -364,7 +399,7 @@ Use cases จริง:
 
 เหมาะเมื่อ correctness ตรวจด้วย rule ยาก, มี reviewer preference, และต้องปรับ style/judgment/ranking. ไม่เหมาะเมื่อมีคำตอบถูกผิดชัดเจนและตรวจด้วย verifier ได้ เพราะกรณีนั้น RLVR มักตรงกว่า.
 
-### RLVR
+### ✅ RLVR
 
 ใช้เมื่อความถูกต้องตรวจได้จริงด้วย rule, test, schema, simulation, API response, database state, หรือ execution result.
 
@@ -379,7 +414,7 @@ Use cases จริง:
 
 เหมาะเมื่อมี verifier ชัด, มี safety rules, มี execution environment, และต้องลด hallucinated action. ไม่เหมาะเมื่อ quality เป็น subjective ล้วน, verifier อ่อนหรือ game ได้ง่าย, หรือไม่มีทางตรวจ action จริง.
 
-### LangGraph / Agent Environment
+### 🕸️ LangGraph / Agent Environment
 
 ใช้เมื่อ workflow มีหลาย node, state, retry, branching, human approval, หรือหลาย tools.
 
@@ -392,7 +427,7 @@ Use cases จริง:
 
 เหมาะเมื่องานยาวกว่า 1 step, ต้องมี state, ต้อง retry เมื่อ verifier fail, หรือต้องมี guardrails/human-in-the-loop. ไม่เหมาะเมื่องานเป็น single prompt/simple response และ graph complexity มากกว่าปัญหาจริง.
 
-### GRPO-Style Rollouts
+### 🎲 GRPO-Style Rollouts
 
 ใช้เพื่อเปรียบเทียบหลาย candidate/action ต่อ task เดียวกัน แล้วให้ reward/advantage เพื่อดูว่า behavior ไหนควรถูก reinforce.
 
@@ -405,7 +440,7 @@ Use cases จริง:
 
 เหมาะเมื่อมีหลายทางเลือก, verifier ให้คะแนนได้, และอยาก optimize policy จาก comparison ภายในกลุ่ม. ไม่เหมาะเมื่อ cost ต่อ rollout แพงเกิน, verifier ยังไม่น่าเชื่อถือ, หรือ task ไม่ต้อง sample หลายทาง.
 
-### Metrics + Failure Buckets
+### 📊 Metrics + Failure Buckets
 
 ใช้ในระบบจริงทุกระบบ เพราะ pass/fail อย่างเดียวไม่พอ. ต้องรู้ว่า fail เพราะอะไร.
 
@@ -421,7 +456,7 @@ Failure buckets ที่พบบ่อย:
 
 ใช้กับ monitoring dashboard, regression suite, release gate, LangSmith trace review, และ weekly eval review.
 
-### Continuous Improvement Loop
+### 🔄 Continuous Improvement Loop
 
 ใช้หลัง deploy แล้ว เพื่อเปลี่ยน production failure เป็น eval case ใหม่.
 
@@ -447,7 +482,7 @@ agent เรียก delete tool โดยไม่ขอ approval
 
 นี่คือสิ่งที่ทำให้ agent ดีขึ้นอย่างเป็นระบบ ไม่ใช่แก้ prompt ไปเรื่อย ๆ แบบเดา.
 
-### Harness Engineering
+### 🧪 Harness Engineering
 
 Harness engineering คือระบบรอบโมเดลทั้งหมด ไม่ใช่แค่ prompt:
 
@@ -467,7 +502,7 @@ Harness engineering คือระบบรอบโมเดลทั้งห
 
 สรุปสั้น ๆ: ถ้าทำ agentic workflow จริง ให้เริ่มจาก harness + eval ก่อน แล้วค่อยเลือก technique ที่ตรง failure mode ที่สุด. อย่าเริ่มจาก fine-tune หรือ RL ทันที เพราะหลายปัญหาแก้ได้ด้วย RAG, schema, verifier, หรือ workflow graph ที่ดีขึ้นก่อน.
 
-## Harness Runtime
+## 🧪 Harness Runtime
 
 คำสั่ง `run` แสดงผล demo. คำสั่ง `harness run` ตรวจว่า demo output มีคุณภาพพอหรือไม่.
 
@@ -483,6 +518,21 @@ Harness ทำงานแบบนี้:
 4. ตรวจ topic-specific checks เช่น RAG matches, reward coverage, rollout advantage
 5. สรุป status เป็น `pass`, `warn`, หรือ `fail`
 6. เขียน report เป็น JSON และ Markdown ใน `reports/`
+
+### 📈 Harness Runtime Flow
+
+```mermaid
+flowchart LR
+    cli["agent-rl-demo harness run"] --> select["Select topic or all topics"]
+    select --> runner["Run topic runner"]
+    runner --> result["DemoResult"]
+    result --> generic["Generic checks"]
+    result --> specific["Topic-specific checks"]
+    generic --> status["pass / warn / fail"]
+    specific --> status
+    status --> report["JSON + Markdown report"]
+    status --> ci["Release gate / regression signal"]
+```
 
 Current checks:
 
@@ -508,7 +558,7 @@ Current checks:
 }
 ```
 
-## Pinecone RAG Design
+## 🌲 Pinecone RAG Design
 
 Topic `02_rag_pinecone` ใช้ Pinecone integrated inference ตาม requirement:
 
@@ -519,6 +569,22 @@ Topic `02_rag_pinecone` ใช้ Pinecone integrated inference ตาม requir
 
 เหตุผลที่ใช้ integrated inference คือ Pinecone embed + store + search ใน service เดียว ลด network hop และลดการต้องจัดการ embedding client แยก.
 
+### 🔎 Pinecone Integrated Inference Flow
+
+```mermaid
+sequenceDiagram
+    participant CLI as Demo CLI
+    participant PC as Pinecone
+    participant IDX as Integrated Index
+
+    CLI->>PC: upsert_records(raw text + metadata)
+    PC->>IDX: embed text with multilingual-e5-large
+    IDX-->>PC: store vectors + metadata
+    CLI->>PC: index.search(query text)
+    PC->>IDX: embed query + vector search
+    IDX-->>CLI: hits with id, score, metadata
+```
+
 Mock data มีทั้งไทยและอังกฤษ:
 
 - Thai refund policy
@@ -526,7 +592,7 @@ Mock data มีทั้งไทยและอังกฤษ:
 - English reward design
 - English held-out eval guidance
 
-## LangSmith Tracing
+## 🔭 LangSmith Tracing
 
 ถ้า `.env` มี `LANGSMITH_API_KEY` และ `LANGSMITH_TRACING=true`, LangChain/LangGraph calls จะถูกส่งเข้า LangSmith project ที่ตั้งไว้.
 
@@ -538,7 +604,7 @@ Tracing มีประโยชน์ตอนตรวจ:
 - latency
 - run-by-run comparison
 
-## Testing Philosophy
+## ✅ Testing Philosophy
 
 Tests แบ่งเป็น deterministic และ live:
 
@@ -573,7 +639,7 @@ uv run agent-rl-demo harness run all --live --no-report
 # pass: 10 topics, 28 checks
 ```
 
-## How To Extend This Repo
+## 🧩 How To Extend This Repo
 
 เมื่อเพิ่ม topic ใหม่:
 
@@ -592,7 +658,7 @@ uv run agent-rl-demo harness run all --live --no-report
 - verifier ตรวจอะไร
 - output ของ demo แปลว่าอะไร
 
-## Additional Reading
+## 📎 Additional Reading
 
 - [docs/harness-engineering.md](docs/harness-engineering.md) อธิบาย harness engineering, research summary, และ checklist
 - [AGENTS.md](AGENTS.md) กติกาสำหรับ coding agents ที่จะทำงานต่อใน repo นี้
