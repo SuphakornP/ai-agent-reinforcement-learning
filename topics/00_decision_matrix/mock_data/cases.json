@@ -1,0 +1,32 @@
+[
+  {
+    "id": "facts",
+    "problem": "The assistant does not know internal policy facts.",
+    "signals": {"missing_domain_facts": true}
+  },
+  {
+    "id": "format",
+    "problem": "The assistant returns inconsistent JSON tool calls.",
+    "signals": {"format_errors": true}
+  },
+  {
+    "id": "examples",
+    "problem": "The model needs to imitate approved analyst notes.",
+    "signals": {"demonstrations": true}
+  },
+  {
+    "id": "preferences",
+    "problem": "Two answers are valid, but reviewers prefer one style.",
+    "signals": {"preference_pairs": true}
+  },
+  {
+    "id": "verifiable",
+    "problem": "Correctness can be checked by schema and execution tests.",
+    "signals": {"verifiable_success": true}
+  },
+  {
+    "id": "long_horizon",
+    "problem": "The agent fails after multiple tool calls and state updates.",
+    "signals": {"long_horizon": true}
+  }
+]

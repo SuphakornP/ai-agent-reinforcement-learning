@@ -1,0 +1,29 @@
+[
+  {
+    "id": "eval_001",
+    "latency_ms": 830,
+    "expected": {
+      "expected_tool": "calendar.create_event",
+      "expected_args": {"attendee": "Alex", "day": "Tuesday", "time": "14:00"}
+    },
+    "output": "{\"tool\":\"calendar.create_event\",\"args\":{\"attendee\":\"Alex\",\"day\":\"Tuesday\",\"time\":\"14:00\"}}"
+  },
+  {
+    "id": "eval_002",
+    "latency_ms": 910,
+    "expected": {
+      "expected_tool": "project.update_task",
+      "expected_args": {"project": "Phoenix", "task_id": "A-42", "status": "review"}
+    },
+    "output": "{\"tool\":\"project.comment\",\"args\":{\"task_id\":\"A-42\",\"comment\":\"done\"}}"
+  },
+  {
+    "id": "eval_003",
+    "latency_ms": 740,
+    "expected": {
+      "expected_tool": "support.create_ticket",
+      "expected_args": {"account": "ACME", "priority": "high", "issue": "login failures"}
+    },
+    "output": "open ticket"
+  }
+]

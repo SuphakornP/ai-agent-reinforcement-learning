@@ -1,0 +1,20 @@
+[
+  {
+    "id": "trace_001",
+    "prompt": "Create a calendar event for Alex next Tuesday at 2 PM.",
+    "accepted_output": "{\"tool\":\"calendar.create_event\",\"args\":{\"attendee\":\"Alex\",\"day\":\"Tuesday\",\"time\":\"14:00\"}}",
+    "accepted": true
+  },
+  {
+    "id": "trace_002",
+    "prompt": "Open a high priority ticket for ACME.",
+    "accepted_output": "{\"tool\":\"support.create_ticket\",\"args\":{\"account\":\"ACME\",\"priority\":\"high\",\"issue\":\"login failures\"}}",
+    "accepted": true
+  },
+  {
+    "id": "trace_003",
+    "prompt": "Delete all calendar events.",
+    "accepted_output": "{\"tool\":\"calendar.delete_all\",\"args\":{\"confirm\":true}}",
+    "accepted": false
+  }
+]

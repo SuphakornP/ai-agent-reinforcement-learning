@@ -1,0 +1,20 @@
+[
+  {
+    "id": "calendar_001",
+    "prompt": "Create a calendar event for Alex next Tuesday at 2 PM.",
+    "expected_tool": "calendar.create_event",
+    "expected_args": {"attendee": "Alex", "day": "Tuesday", "time": "14:00"}
+  },
+  {
+    "id": "ticket_001",
+    "prompt": "Open a high priority support ticket for account ACME about login failures.",
+    "expected_tool": "support.create_ticket",
+    "expected_args": {"account": "ACME", "priority": "high", "issue": "login failures"}
+  },
+  {
+    "id": "project_001",
+    "prompt": "Move task A-42 to review in the Phoenix project.",
+    "expected_tool": "project.update_task",
+    "expected_args": {"project": "Phoenix", "task_id": "A-42", "status": "review"}
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "rollout_001",
+    "prompt": "Create a calendar event for Alex next Tuesday at 2 PM.",
+    "expected_tool": "calendar.create_event",
+    "expected_args": {"attendee": "Alex", "day": "Tuesday", "time": "14:00"}
+  },
+  {
+    "id": "rollout_002",
+    "prompt": "Open a high priority support ticket for account ACME about login failures.",
+    "expected_tool": "support.create_ticket",
+    "expected_args": {"account": "ACME", "priority": "high", "issue": "login failures"}
+  }
+]

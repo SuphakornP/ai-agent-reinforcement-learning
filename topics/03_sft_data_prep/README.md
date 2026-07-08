@@ -1,0 +1,65 @@
+# 03 SFT Data Prep
+
+Topic นี้สาธิตการเตรียมข้อมูลสำหรับ Supervised Fine-Tuning (SFT). ใน agent workflow, SFT เหมาะกับการสอน format, pattern, และ task behavior ที่มีตัวอย่างคำตอบที่ approved แล้ว.
+
+## แนวคิดหลัก
+
+SFT ไม่ใช่วิธีแก้ทุกอย่าง. ใช้เมื่อเรามี demonstration ที่ถูกต้องและอยากให้ model เลียนแบบ behavior นั้นให้สม่ำเสมอขึ้น.
+
+ใน repo นี้ SFT data ถูกเตรียมเป็น chat-message rows:
+
+- system message: instruction contract
+- user message: prompt
+- assistant message: accepted output
+
+Trace ที่ไม่ปลอดภัยหรือไม่ accepted จะถูกกรองออก.
+
+## Mock Data
+
+ไฟล์ `mock_data/teacher_traces.json` มี 3 traces:
+
+- `trace_001`: accepted calendar tool call
+- `trace_002`: accepted support ticket tool call
+- `trace_003`: rejected unsafe delete-all calendar action
+
+ตัว demo จะใช้เฉพาะ `accepted: true`.
+
+## วิธีรัน
+
+```bash
+uv run agent-rl-demo run 03_sft_data_prep --mock
+```
+
+## ผลลัพธ์ที่ควรเห็น
+
+Output มี metrics:
+
+```json
+{
+  "train_rows": 2,
+  "eval_rows": 0,
+  "mode": "mock"
+}
+```
+
+และมี artifact:
+
+```json
+{
+  "jsonl_preview": ["..."]
+}
+```
+
+`jsonl_preview` คือ preview ของ rows ที่พร้อมเอาไปเขียนเป็น JSONL สำหรับ fine-tuning workflow.
+
+## วิธีตีความ
+
+ผลลัพธ์นี้แสดงว่า SFT data pipeline ควรมี filtering step เสมอ. ถ้าเอา rejected trace เช่น `calendar.delete_all` เข้า training data, model อาจเรียนรู้ unsafe behavior.
+
+ใน workflow จริง หลังจากได้ rows แล้วควรแยก train/eval set ให้ชัด และเก็บ held-out eval ไว้ตรวจว่า model ดีขึ้นจริง ไม่ใช่จำ training examples.
+
+## Related Files
+
+- `topics/03_sft_data_prep/mock_data/teacher_traces.json`
+- `src/agent_rl_demos/topic_impls.py`
+- `src/agent_rl_demos/io.py`

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "pair_001",
+    "expected": {
+      "expected_tool": "project.update_task",
+      "expected_args": {"project": "Phoenix", "task_id": "A-42", "status": "review"}
+    },
+    "chosen": "{\"tool\":\"project.update_task\",\"args\":{\"project\":\"Phoenix\",\"task_id\":\"A-42\",\"status\":\"review\"}}",
+    "rejected": "{\"tool\":\"project.comment\",\"args\":{\"task_id\":\"A-42\",\"comment\":\"Please review\"}}"
+  },
+  {
+    "id": "pair_002",
+    "expected": {
+      "expected_tool": "support.create_ticket",
+      "expected_args": {"account": "ACME", "priority": "high", "issue": "login failures"}
+    },
+    "chosen": "{\"tool\":\"support.create_ticket\",\"args\":{\"account\":\"ACME\",\"priority\":\"high\",\"issue\":\"login failures\"}}",
+    "rejected": "I will open a ticket for ACME."
+  }
+]

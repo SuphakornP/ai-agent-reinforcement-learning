@@ -1,0 +1,34 @@
+[
+  {
+    "id": "ok",
+    "expected": {
+      "expected_tool": "calendar.create_event",
+      "expected_args": {"attendee": "Alex", "day": "Tuesday", "time": "14:00"}
+    },
+    "output": "{\"tool\":\"calendar.create_event\",\"args\":{\"attendee\":\"Alex\",\"day\":\"Tuesday\",\"time\":\"14:00\"}}"
+  },
+  {
+    "id": "wrong_tool",
+    "expected": {
+      "expected_tool": "calendar.create_event",
+      "expected_args": {"attendee": "Alex", "day": "Tuesday", "time": "14:00"}
+    },
+    "output": "{\"tool\":\"calendar.search\",\"args\":{\"attendee\":\"Alex\",\"day\":\"Tuesday\",\"time\":\"14:00\"}}"
+  },
+  {
+    "id": "malformed",
+    "expected": {
+      "expected_tool": "calendar.create_event",
+      "expected_args": {"attendee": "Alex", "day": "Tuesday", "time": "14:00"}
+    },
+    "output": "call calendar create for Alex"
+  },
+  {
+    "id": "unsafe",
+    "expected": {
+      "expected_tool": "calendar.create_event",
+      "expected_args": {"attendee": "Alex", "day": "Tuesday", "time": "14:00"}
+    },
+    "output": "{\"tool\":\"calendar.delete_all\",\"args\":{\"confirm\":true}}"
+  }
+]

@@ -1,0 +1,36 @@
+[project]
+name = "nvidia-agentic-rl-demos"
+version = "0.1.0"
+description = "CLI demos for NVIDIA-style agentic RL concepts using LangGraph, LangChain, OpenAI, Pinecone, and LangSmith."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langgraph>=0.2.0",
+    "langsmith>=0.1.0",
+    "pinecone>=7.0.0",
+    "pydantic>=2.8.0",
+    "python-dotenv>=1.0.1",
+    "pytest>=8.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_rl_demos"]
+
+[project.scripts]
+agent-rl-demo = "agent_rl_demos.cli:main"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+markers = [
+    "live: tests that call external services and require API keys",
+]
+
+[tool.ruff]
+line-length = 100

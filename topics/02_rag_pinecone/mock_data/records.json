@@ -1,0 +1,30 @@
+[
+  {
+    "id": "doc-th-001",
+    "text": "นโยบายการขอคืนเงินในกรุงเทพต้องแนบใบเสร็จและเลขคำสั่งซื้อภายใน 30 วัน",
+    "language": "th",
+    "topic": "refund policy",
+    "source": "mock_policy_handbook"
+  },
+  {
+    "id": "doc-en-001",
+    "text": "Reward functions should measure the real task, resist gaming, and fail visibly when wrong.",
+    "language": "en",
+    "topic": "reward design",
+    "source": "mock_rl_notes"
+  },
+  {
+    "id": "doc-th-002",
+    "text": "ตัวแทนบริการลูกค้าควรส่งต่อเคสความปลอดภัยเมื่อพบคำขอลบข้อมูลทั้งหมด",
+    "language": "th",
+    "topic": "safety escalation",
+    "source": "mock_support_runbook"
+  },
+  {
+    "id": "doc-en-002",
+    "text": "A held-out eval set should stay separate from training tasks to detect real improvement.",
+    "language": "en",
+    "topic": "evaluation",
+    "source": "mock_eval_guide"
+  }
+]
